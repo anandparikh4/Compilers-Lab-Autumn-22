@@ -1,0 +1,66 @@
+###
+Source files : 
+lex.l
+parse.y
+
+### Helper files : 
+main.c
+Makefile
+
+### Test files : 
+test.c
+
+###
+Compiled files : 
+lex.yy.c
+y.tab.h
+y.tab.c
+
+###
+Applications :
+lex.out
+parse.out
+
+
+//////
+
+List of changes to make in lex files : 
+
+1) lex.h :
+Change values of MACROS starting from 1 to starting from 256 (300 for safety?)
+
+2) lex.l : 
+
+In definitions part :
+	#include "y.tab.h"	// for yylval.<whatever> = <scanned_input>
+	#include "parse.h"	// for handling symbol table entries
+	
+In actions part : 
+	put IDENTIFIERs in the symbol table
+	assign yylval to all lexemes where we return anything (except ERR), namely - KEYWORD, ID, CONST, STRING_LITERAL, PUNC (since these are the lexemes whose values matter and must be scanned from the input text file (test.c))
+	
+///// 
+
+Errors to handle :
+
+Division by zero
+
+# All syntax errors will be detected by the parser, but what about complex semantic errors? 
+How to handle : 
+	1) Type mismatch
+	2) Usage of a variable before declaration
+	
+//////
+	
+### TAKE CARE ABOUT THESE: 
+
+<Remember that lex tokens and grammar terminals ARE DIFFERENT THINGS>
+1) Make 1 token for each terminal, with the following in mind :
+	For punctuators, directly use single quotes to return those single characters. 
+	For operators, if single character (e.g. + can be done as '+') else if multicharacter (e.g. += can be done as '+''=')
+	For constants, link with <intval>   // value
+	For identifiers, link with <symp>   // pointer to symbol table
+	Also, ADD a (char *) field to the union, for using with strings, and link string to that field (name it, maybe, <strval> ?)
+2) Grammar symbols having optional in subscript
+3) Use the same line counter of lex in bison
+4) There are lots of spaces in the grammar specifications provided in the assignment statement. Keep / Discard ?
